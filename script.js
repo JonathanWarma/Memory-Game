@@ -32,12 +32,12 @@ let winCount = 0;
 const timeGenerator = () => {
     seconds += 1;
     if(seconds >=60){
-        minutes +=1;
         seconds =0;
+        minutes +=1;
     }
 
 let secondsValue = seconds <10 ? `0${seconds}` : seconds;
-let minutesValue = minutes <10 ? `0${seconds}` : minutes;
+let minutesValue = minutes <10 ? `0${minutes}` : minutes;
 timeValue.innerHTML =`<span>Time:</span> ${minutesValue} : ${secondsValue}`;
 
 };
@@ -68,13 +68,14 @@ const matrixGenerator = (cardValues, size = 4) =>{
 for(let i =0 ; i<size * size ; i++){
     gameContainer.innerHTML +=`
     <div class="card-container" data-card-value="${cardValues[i].name}" >
-            <div class="card-back">?</div>
-            <div class="card-front"><img src="${cardValues[i].image}" class="image"/></div>
+            <div class="card-before">?</div>
+            <div class="card-after"><img src="${cardValues[i].image}" class="image"/></div>
     </div>`;
     
 }
 gameContainer.style.gridTemplateColumns = `repeat(${size},auto)`;
-};
+
+
 
 cards= document.querySelectorAll(".card-container");
 cards.forEach((card) =>{
@@ -85,24 +86,36 @@ cards.forEach((card) =>{
                 firstCard = card;
                 firstCardValue = card.getAttribute("data-card-value");
             }
-        }
-        else{
-            movesCounter();
-            secondCard =card;
-            let secondCardValue = card.getAttribute("data-card-value");
-            if(firstCardValue == secondCardValue){
-                firstCard.classList.add("matched");
-                secondCard.classList.add("matched");
-                firstCard = false;
-                winCount+=1;
-                if(winCount == Math.floor(cardValues.length/2)){
-                    result.innerHTML = `<h2>You Won</h2>`
+            else{
+                movesCounter();
+                secondCard =card;
+                let secondCardValue = card.getAttribute("data-card-value");
+                if(firstCardValue == secondCardValue){
+                    firstCard.classList.add("matched");
+                    secondCard.classList.add("matched");
+                    firstCard = false;
+                    winCount+=1;
+                    if(winCount == Math.floor(cardValues.length/2)){
+                        result.innerHTML = `<h2>You Won</h2>
+                        <h4>${movesCount}</h4>`;
+                        stopGame();
+                    }
+                }else{
+                    let[tempFirst, tempSecond] = [firstCard , secondCard];
+                    firstCard = false;
+                    secondCard = false ;
+                    let delay= setTimeout(() =>{
+                        tempFirst.classList.remove("flipped");
+                        tempSecond.classList.remove("flipped");
+                    },900);
+    
                 }
             }
         }
-    })
-})
-
+  
+    });
+});
+};
 
 const initializer = () => {
  result.innerHTML ="";
@@ -113,4 +126,24 @@ const initializer = () => {
    
 };
 
-initializer();
+startButton.addEventListener("click", ()=>{
+    movesCount=0;
+   seconds =0;
+   minutes =0;
+    control.classList.add("hide");
+    stopButton.classList.remove("hide");
+    startButton.classList.add("hide");
+
+    interval = setInterval(timeGenerator, 1000);
+    moves.innerHTML = `<span>Moves: </span> ${movesCount}`;
+    initializer();
+}
+)
+
+stopButton.addEventListener("click",(stopGame = () => {
+    control.classList.remove("hide");
+    stopButton.classList.add("hide");
+    startButton.classList.remove("hide");
+    clearInterval(interval);
+}
+))
